@@ -63,10 +63,9 @@ class Checker
     direction = player == :r ? -1 : 1
     look =  [[1,1], [1,-1], [-1, 1], [-1,-1]]
     results = []
-    if king != true
-      look = look.keep_if{ |loc| loc[0] == direction }
-    end
-    look.each{ |pos| results << location.delta_math(pos)}
+    look = look.keep_if{ |loc| loc[0] == direction } if king != true
+
+    look.each{ |pos| results << location.delta_math(pos) if board[pos[0]][pos[1]] == nil}
     results.keep_if {|pos| move_on_board?(pos)}
   end
 
