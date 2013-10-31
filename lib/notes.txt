@@ -1,0 +1,52 @@
+# load 'Checkers.rb'
+load 'board.rb'
+b = Board.new
+# b.populate_board
+# b.game_loop
+b.grid[0][0] = Checker.new(b, [0,0], :b)
+b.grid[1][1] = Checker.new(b, [1,1], :r)
+b.grid[3][3] = Checker.new(b, [3,3], :r)
+b.display
+b.grid[7][2].perform_moves!([[5,0], [4,1], [3,0], [2,1], [1,0], [0,1], [1,0]])
+
+# b.grid[7][2].perform_move([5,0])
+# b.display
+# b.grid[5][0].perform_move([4,1])
+# b.display
+# b.grid[4][1].perform_move([3,0])
+# b.display
+# b.grid[3][0].perform_move([2,1])
+# b.display
+# b.grid[2][1].perform_move([1,0])
+# b.display
+# b.grid[1][0].perform_move([0,1])
+# b.display
+
+b.grid[7][2].perform_moves!([[5,0], [4,1], [3,0], [2,1], [1,0], [0,1]])
+
+Don't focus on the User interaction first, focus on setting up the Board and getting Piece movement correct.
+
+A non-king Piece can move forward only; kings can move backward and forward.
+Probably don't need a PawnPiece and KingPiece; just "promote" a Piece to king when it hits the opposite row.
+
+You'll want Piece methods that list #slide_moves and #jump_moves.
+Write methods perform_slide and perform_jump that validate the move. perform_jump should remove the jumped piece from the Board.
+
+An illegal slide/jump should raise an InvalidMoveError.
+
+Once you get perform_slide and perform_jump working, call over your TA and have them take a look.
+
+Write a method Piece#perform_moves!(move_sequence) that takes a sequence of moves. This can either be one slide, or one or more jumps.
+
+
+perform_moves! should perform the moves one-by-one. If a move in the sequence fails, an InvalidMoveError should be raised.
+
+perform_moves! should not bother to try to restore the original Board state if the move sequence fails.
+
+Write a valid_move_seq? that calls perform_moves! on a duped Piece/Board. If no error is raised, return true; else false.
+
+This will of course require begin/rescue/else.
+
+Because we dup the objects, valid_move_seq? should not modify the original Board.
+
+Write a perform_moves method that checks valid_move_seq?, and either calls perform_moves! or raises an InvalidMoveError.
