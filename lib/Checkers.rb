@@ -1,8 +1,22 @@
+# REV: I don't love the name Checker only because the name is so
+#      close to Checkers. Piece seems more expressive and has
+#      less potential for confusion. When I first saw this
+#      class I thought it was a game class, not a piece class.
 class Checker
 
+  # REV: The way functionality is abstracted out between
+  #      Checker and Board classes results in you needing
+  #      to pass a lot between each with the accessor.
+  #
+  #      The really extreme example here is the fact that
+  #      it's you have to pass a board variable from
+  #      the Checker class to the Board class...
   attr_accessor :player, :king, :location, :board, :king_index
 
   def initialize(board, location, player = :r)
+    # REV: Not really sure why you initialize the board's grid
+    #      to this variable. Initializing an instance of the
+    #      board class to this variable would be more typical.
     @board = board.grid
     @board[location[0]][location[1]] = self
     @player = player
@@ -15,8 +29,15 @@ class Checker
     location[0] == self.king_index[player]
   end
 
+  # REV: I think it might be easier to track what's going on here
+  #      with piece movement if you abstracted jumps and slides
+  #      into separate functions.
+
   def perform_moves(moves)
     begin
+      # REV: Like Marshal for this. However, this might make more
+      #      sense abstracted out to a clone function on the
+      #      board class.
       fake_board = Marshal.dump(Marshal.load(board))
       fake_board[location[0]][location[1]].perform_moves!(moves)
     rescue
@@ -28,10 +49,17 @@ class Checker
     moves.reverse!
     while moves.length > 0
       perform_move(moves.pop)
+
+      # REV: Don't love board.display here as the function isn't
+      #      otherwise concerned with UI. Better to handle display
+      #      on a high level function in your Board class or in a 
+      #      Game class.
       board.display
     end
   end
 
+  # REV: Not a great name. Maintenance is really general and gives
+  #      me no sense what this function really does.
   def maintenance
     self.king = true if king_me?
   end
@@ -55,7 +83,9 @@ class Checker
   end
 
   def get_allowed_moves
+    # REV: unless determine_attacks.empty? is more expressive in this case.
     return determine_attacks if determine_attacks != []
+    # REV: no need to call return here. Just implicit return.
     return default_moves
   end
 
@@ -66,16 +96,19 @@ class Checker
     look = look.keep_if{ |loc| loc[0] == direction } if king != true
 
     look.each{ |pos| results << location.delta_math(pos) if board[pos[0]][pos[1]] == nil}
+    # REV: whtie space here
     results.keep_if {|pos| move_on_board?(pos)}
   end
 
   def determine_attacks
     possibles = default_moves # refactor a bit later
+    # REV: Use 'do |mov|' and break this over multiple lines. It's just too long.
     attacks = possibles.keep_if{ |mov| board[mov[0]][mov[1]].class == Checker && board[mov[0]][mov[1]].player != player}
     attacks.keep_if do |attack|
       jump = attack.delta_math(offset(attack))
       board[jump[0]][jump[1]].nil?
     end
+    # REV: white space here
     attacks.map!{|attack| attack.delta_math(offset(attack))}
   end
 
